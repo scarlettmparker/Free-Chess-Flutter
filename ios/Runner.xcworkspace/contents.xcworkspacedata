@@ -4,4 +4,7 @@
    <FileRef
       location = "group:Runner.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:../../../Dropbox/PC/Documents/Free Chess Flutter/ios/Pods/Pods.xcodeproj">
+   </FileRef>
 </Workspace>

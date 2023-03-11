@@ -35,7 +35,7 @@ class HomeLayout extends StatefulWidget {
 class _HomeState extends State<HomeLayout> {
   @override
   Widget build(BuildContext context) {
-    const TextStyle textStyle = TextStyle(color: Color(0xFFFFFFFF), fontSize: 42, fontFamily: "Montserrat",);
+    const TextStyle textStyle = TextStyle(color: Color(0xFFFFFFFF), fontSize: 42);
     const TextStyle buttonTextStyle = TextStyle(color: Color(0xFFFFFFFF), fontSize: 16, fontFamily: "Montserrat");
     final ButtonStyle style = ElevatedButton.styleFrom(textStyle: buttonTextStyle,
     padding: const EdgeInsets.all(20), backgroundColor: const Color(0xFF656565));
@@ -46,9 +46,20 @@ class _HomeState extends State<HomeLayout> {
         Container(
           margin: const EdgeInsets.fromLTRB(0, 200, 0, 0),
           alignment: Alignment.topCenter,
-          child: const Text('FreeChess',
-          style: textStyle,
-          ),
+
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Text(
+                'FreeChess',
+                style: textStyle),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                child: Image(image: AssetImage('images/icon_draw.png'),
+                width: 45, height: 45),
+              ),
+            ],
+          )
         ),
         Container(
           margin: const EdgeInsets.fromLTRB(0, 50, 0, 0),

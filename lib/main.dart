@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:free_chess_flutter/game/chess_game.dart';
+import 'package:free_chess_flutter/game/chess_piece.dart';
 import 'dart:math';
 
 void main() {
@@ -85,7 +87,7 @@ class _HomeState extends State<HomeLayout> {
           child: ElevatedButton(
             style: style,
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const Game()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Game()));
             },
             child: const Text('START GAME'),
           ),
@@ -106,7 +108,10 @@ class _HomeState extends State<HomeLayout> {
 }
 
 class Game extends StatelessWidget{
-  const Game({super.key});
+  final ChessGame game = ChessGame.newGame();
+  List <ChessPiece> get pieces => game.pieces;
+  Game({super.key});
+
   @override
   Widget build(BuildContext context) {
     // get maximum and minimum tile sizes based on screen size
@@ -134,8 +139,32 @@ class Game extends StatelessWidget{
       return value.isEven ? darkTile : lightTile;
     }
 
+    Widget? buildChessPieces(int x, int y) {
+      final piece = game.pieceOfTile(x, y);
+      if (piece != null) {
+        final child = Container(
+          alignment: Alignment.center,
+          child: Image.asset(
+            // load piece graphics
+            piece.fileName,
+            width: min(maxTileSize, minTileSize),
+            height: min(maxTileSize, minTileSize),
+          ),
+        );
+
+        return Draggable<ChessPiece>(
+          data: piece,
+          feedback: child,
+          childWhenDragging: const SizedBox.shrink(),
+          child: child,
+        );
+      }
+      return null;
+    }
+
     // ensure UI is different for different devices
     MainAxisAlignment alignment() {
+      // device friendly :3
       if (width <= 950) {
         return MainAxisAlignment.center;
       } else {
@@ -154,19 +183,46 @@ class Game extends StatelessWidget{
             ...List.generate(8, (y) => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ...List.generate(8, (x) => Container(
-                  decoration: BoxDecoration(
-                    // determine colour based on coordinate
-                    color: buildTileColor(x, y),
-                  ),
-                  // whichever fits better on screen
-                  width: min(maxTileSize, minTileSize),
-                  height: min(maxTileSize, minTileSize),
-                ),),
+                ...List.generate(8, (x) => movePiece(buildTileColor, x, y,
+                    maxTileSize, minTileSize, buildChessPieces, context),
+                )
               ],
-            ),),
+            ),).reversed,
           ],
         ),
+      ),
+    );
+  }
+
+  DragTarget<ChessPiece> movePiece(Color Function(int x, int y) buildTileColor, int x, int y,
+      double maxTileSize, double minTileSize, Widget? Function(int x, int y) buildChessPieces, context) {
+    return DragTarget<ChessPiece>(
+      onAccept: (piece) {
+        // get current square
+        Square from = piece.getSquare();
+        Square to = Square(x, y);
+        // if current move & legal move
+        if (piece.canMove(from, to) && game.getTurn() == piece.getColor()) {
+          // move piece
+          piece.setSquare(Square(x, y));
+          if (piece.getColor() == PieceColor.white) {
+            // update turn
+            game.setTurn(PieceColor.black);
+          } else {
+            game.setTurn(PieceColor.white);
+          }
+          (context as Element).markNeedsBuild();
+        }
+      },
+      builder:(context, data, rejects) => Container(
+        decoration: BoxDecoration(
+          // determine colour based on coordinate
+          color: buildTileColor(x, y),
+        ),
+        // whichever fits better on screen
+        width: min(maxTileSize, minTileSize),
+        height: min(maxTileSize, minTileSize),
+        child: buildChessPieces(x, y),
       ),
     );
   }

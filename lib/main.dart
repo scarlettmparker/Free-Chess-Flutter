@@ -202,14 +202,20 @@ class Game extends StatelessWidget{
         Square from = piece.getSquare();
         Square to = Square(x, y);
         // if current move & legal move
+        print("from: " + from.toString());
+        print("to: " + to.toString());
         if (piece.canMove(from, to) && game.getTurn() == piece.getColor()) {
           // move piece
           piece.setSquare(Square(x, y));
-          if (piece.getColor() == PieceColor.white) {
-            // update turn
-            game.setTurn(PieceColor.black);
+          if (from.x == to.x && from.y == to.y) {
+            print("Bro's tryna not move his piece");
           } else {
-            game.setTurn(PieceColor.white);
+            if (piece.getColor() == PieceColor.white) {
+              // update turn
+              game.setTurn(PieceColor.black);
+            } else {
+              game.setTurn(PieceColor.white);
+            }
           }
           (context as Element).markNeedsBuild();
         }
